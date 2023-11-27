@@ -1,9 +1,13 @@
 FROM python:3.10-bullseye
 RUN python -m pip install --upgrade pip
-WORKDIR /deps
-
-COPY requirements.txt requirements.txt
-RUN python -m pip install -r requirements.txt
 WORKDIR /app
 
-CMD uvicorn main:app --reload --host 0.0.0.0
+COPY requirements.txt requirements.txt
+COPY main.py main.py
+COPY auth auth
+COPY queries queries
+COPY routers routers
+
+RUN python -m pip install -r requirements.txt
+
+CMD uvicorn main:app --host 0.0.0.0 --port 80
