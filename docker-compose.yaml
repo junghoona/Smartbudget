@@ -1,5 +1,5 @@
 volumes:
-  tracker:
+  spending-tracker:
     external: true
 services:
   api:
@@ -21,7 +21,7 @@ services:
       context: data
       dockerfile: Dockerfile.dev
     volumes:
-      - tracker:/var/lib/postgresql/data
+      - spending-tracker:/var/lib/postgresql/data
     ports:
       - 15432:5432
     environment:

@@ -1,36 +1,36 @@
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS cards;
 DROP TABLE IF EXISTS transactions;
-DROP TABLE IF EXISTS budget;
+DROP TABLE IF EXISTS budgets;
 
 CREATE TABLE users (
     id SERIAL NOT NULL UNIQUE,
     first TEXT NOT NULL,
     last TEXT NOT NULL,
     avatar TEXT NOT NULL,
-    email TEXT NOT NULL,
-    username TEXT NOT NULL
+    email TEXT NOT NULL UNIQUE,
+    username TEXT NOT NULL UNIQUE,
+    referrer_id INTEGER REFERENCES users("id") ON DELETE CASCADE
 );
 
 CREATE TABLE budgets (
     id SERIAL NOT NULL UNIQUE,
     category VARCHAR(50) NOT NULL,
     amount INTEGER NOT NULL,
-    user INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE cards (
     id SERIAL NOT NULL UNIQUE,
     credit_limit INTEGER NOT NULL,
-    card_number TEXT NOT NULL,
-    user INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE
+    minimum_payment INTEGER,
+    card_number TEXT NOT NULL UNIQUE,
+    owner_id INTEGER NOT NULL REFERENCES users("id") ON DELETE CASCADE
 );
 
 CREATE TABLE transactions (
     id SERIAL NOT NULL UNIQUE,
+    description TEXT NOT NULL,
     date TIMESTAMP,
     price INTEGER NOT NULL,
-    user INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    card INTEGER NOT NULL REFERENCES cards(id) ON DELETE CASCADE,
-    budget INTEGER NOT NULL REFERENCES budgets(id) ON DELETE CASCADE
+    card_id INTEGER NOT NULL REFERENCES cards("id") ON DELETE CASCADE
 );
