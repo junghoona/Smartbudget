@@ -16,15 +16,17 @@ CREATE TABLE users (
 CREATE TABLE budgets (
     id SERIAL NOT NULL UNIQUE,
     category VARCHAR(50) NOT NULL,
-    amount INTEGER NOT NULL,
+    amount INTEGER NOT NULL
 );
 
 CREATE TABLE cards (
     id SERIAL NOT NULL UNIQUE,
+    name TEXT NOT NULL UNIQUE,
     credit_limit INTEGER NOT NULL,
     minimum_payment INTEGER,
     card_number TEXT NOT NULL UNIQUE,
-    owner_id INTEGER NOT NULL REFERENCES users("id") ON DELETE CASCADE
+    balance INTEGER NOT NULL,
+    budget_id INTEGER REFERENCES budgets("id") ON DELETE CASCADE
 );
 
 CREATE TABLE transactions (
