@@ -2,19 +2,6 @@ volumes:
   spending-tracker:
     external: true
 services:
-  api:
-    build:
-      context: api
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./api:/app
-    ports:
-      - 8000:8000
-    environment:
-      DATABASE_URL: ${DATABASE_URL}
-      CORS_HOST: http://localhost:3000
-      WAIT_HOSTS: db:5432
-      PORT: 8000
   db:
     image: postgres:14.5-bullseye
     build: 
@@ -28,3 +15,33 @@ services:
       POSTGRES_DB: ${PG_DATABASE}
       POSTGRES_USER: ${PG_USER}
       POSTGRES_PASSWORD: ${PG_PASSWORD}
+
+  api:
+    build:
+      context: api
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./api:/app
+    ports:
+      - 8000:8000
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      CORS_HOST: http://localhost:3000
+      WAIT_HOSTS: db:5432
+      PORT: 8000
+  
+  ghi:
+    image: node:lts-bullseye
+    command: /bin/bash run.sh
+    working_dir: /app
+    volumes:
+      - ./ghi:/app
+    ports:
+      - 3000:3000
+    environment:
+      HOST_OS: ${OS}
+      NODE_ENV: development
+      HOST: "0.0.0.0"
+      PUBLIC_URL: http://localhost:3000
+      REACT_APP_API_HOST: http://localhost:8000
+    
