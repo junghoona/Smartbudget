@@ -30,8 +30,17 @@ class UserQueries:
             with conn.cursor() as cur:
                 cur.execute(
                     """
+                    INSERT INTO users (first, last, avatar, email, username)
+                    VALUES (%s, %s, %s, %s, %s)
+                    RETURNING (id, first, last, avatar, email, username)
                     """,
-                    []
+                    [
+                        data.first,
+                        data.last,
+                        data.avatar,
+                        data.email,
+                        data.username
+                    ]
                 )
             return
 

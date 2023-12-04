@@ -25,15 +25,13 @@ class BudgetOut(BaseModel):
 class BudgetRepository:
     def create(self, budget: BudgetIn) -> Union[BudgetOut, Error]:
         try:
-            # Connect to the database
             with pool.connection() as conn:
-                # Open a cursor to perform database operations
                 with conn.cursor() as db:
-                    # Execute a SQL Command
                     result = db.execute(
                         """
-                        INSERT INTO budgets
+                        INSERT INTO budgets (
                             category, amount
+                        )
                         VALUES
                             (%s, %s)
                         RETURNING id;
@@ -81,8 +79,7 @@ class BudgetRepository:
         try:
             with pool.connection() as conn:
                 with conn.cursor() as db:
-                    # Run SELECT statement
-                    result = db.execute(
+                    db.execute(
                         """
                         SELECT id
                              , category
