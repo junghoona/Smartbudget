@@ -3,14 +3,13 @@ DROP TABLE IF EXISTS cards;
 DROP TABLE IF EXISTS transactions;
 DROP TABLE IF EXISTS budgets;
 
-CREATE TABLE users (
+CREATE TABLE accounts (
     id SERIAL NOT NULL UNIQUE,
-    first TEXT NOT NULL,
-    last TEXT NOT NULL,
+    first_name TEXT NOT NULL,
+    last_name TEXT NOT NULL,
     avatar TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
-    username TEXT NOT NULL UNIQUE,
-    referrer_id INTEGER REFERENCES users("id") ON DELETE CASCADE
+    hashed_password TEXT NOT NULL
 );
 
 CREATE TABLE budgets (
