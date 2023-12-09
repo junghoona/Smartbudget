@@ -25,6 +25,7 @@ services:
     ports:
       - 8000:8000
     environment:
+      SIGNING_KEY: ${SIGNING_KEY}
       DATABASE_URL: ${DATABASE_URL}
       CORS_HOST: http://localhost:3000
       WAIT_HOSTS: db:5432
