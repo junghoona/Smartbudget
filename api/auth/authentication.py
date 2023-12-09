@@ -6,7 +6,9 @@ hashing), Bearer with JWT tokens
 <https://fastapi.tiangolo.com/tutorial/security/oauth2-jwt/>`
 """
 
+# TODO: Fix 401 Unauthorized Error
 from abc import ABC, abstractmethod
+from calendar import timegm
 from datetime import datetime, timedelta
 from fastapi import (
     APIRouter,
@@ -20,14 +22,15 @@ from fastapi import (
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import ExpiredSignatureError, JWTError, jwt
 from jose.constants import ALGORITHMS
+from passlib.context import CryptContext
 from pydantic import BaseModel
-from typing import Annotated, Union
-import os
+from typing import Any, Optional, Tuple, Union
 import re
+from uuid import uuid4
 
 
-"""Represents a Bearer Token."""
 class Token(BaseModel):
+    """Represents a Bearer Token."""
     access_token: str
     token_type: str = "Bearer"
 
@@ -68,9 +71,9 @@ class Authenticator(ABC):
         cookie_name: str = "fastapi_token",
         path: str = "token",
         exp: timedelta = timedelta(minutes=30),
-        public_key: None,
+        public_key=None,
     ):
-        self.cookie_name = cookie_name | self.COOKIE_NAME
+        self.cookie_name = cookie_name or self.COOKIE_NAME
         self.key = key
         self.algorithm = algorithm
         self.path = path
@@ -103,7 +106,7 @@ class Authenticator(ABC):
                     if is_valid:
                         return payload
                     else:
-                        await self.jti_destroyed(claims["jti"], session_getter)
+                        await self.jti_destroyed(jti, session_getter)
             except ExpiredSignatureError:
                 claims = jwt.get_unverified_claims(token)
                 if "jti" in claims:
@@ -111,13 +114,13 @@ class Authenticator(ABC):
             except (JWTError, AttributeError):
                 pass
             return None
-        
+
         setattr(
             self,
             "_try_jwt",
             _try_jwt.__get__(self, self.__class__),
         )
-        
+
         async def try_account_data(
             self,
             token: dict = Depends(self._try_jwt),
@@ -125,16 +128,16 @@ class Authenticator(ABC):
             if token and "account" in token:
                 return token["account"]
             return None
-        
+
         setattr(
             self,
             "try_get_current_account_data",
             try_account_data.__get__(self, self.__class__),
         )
-        
+
         async def account_data(
             self,
-            token: dict = Depends(self.try_get_current_account_data),
+            data: dict = Depends(self.try_get_current_account_data),
         ) -> Optional[dict]:
             if data is None:
                 raise HTTPException(
@@ -143,7 +146,7 @@ class Authenticator(ABC):
                     headers={"WWW-Authenticate": "Bearer"},
                 )
             return data
-        
+
         setattr(
             self,
             "get_current_account_data",
@@ -250,7 +253,7 @@ class Authenticator(ABC):
         hashed_password: ``str``
         """
         pass
-    
+
     def get_account_data_for_cookie(
         self,
         account_data: Union[BaseModel, dict],
@@ -274,12 +277,13 @@ class Authenticator(ABC):
             "account" claim of the JWT.
         """
         data = self._convert_to_dict(account_data)
+        password_key_matcher = re.compile(".*?password.*", re.IGNORECASE)
         account_data = {}
         for key, value in data.items():
             if not password_key_matcher.match(key):
                 account_data[key] = value
         return data["email"], account_data
-    
+
     def get_exp(
         self,
         proposed: timedelta,
@@ -289,7 +293,7 @@ class Authenticator(ABC):
         Returns the amount of time before the JWT expires
         """
         return proposed
-    
+
     def get_session_getter(
         self,
         session_getter: Any = None
@@ -314,7 +318,7 @@ class Authenticator(ABC):
         Handles when new JTIs are created.
         """
         pass
-    
+
     async def jti_destroyed(
         self,
         jti: str,
@@ -324,7 +328,7 @@ class Authenticator(ABC):
         Handles when JTIs are destroyed
         """
         pass
-    
+
     async def validate_jti(
         self,
         jti: str,
@@ -335,13 +339,13 @@ class Authenticator(ABC):
         By default, returns ``True``.
         """
         return True
-    
+
     def hash_password(self, plain_password) -> str:
         """
         Hashes a password for secure storage
         """
         return self.pwd_context.hash(plain_password)
-    
+
     @property
     def router(self):
         """
@@ -353,7 +357,7 @@ class Authenticator(ABC):
             router.delete(f"/{self.path}", response_model=bool)(self.logout)
             self._router = router
         return self._router
-    
+
     async def try_get_current_account_data(
         self,
         bearer_token: Optional[str] = Depends(OAuth2PasswordBearer("token")),
@@ -363,7 +367,7 @@ class Authenticator(ABC):
     ) -> dict:
         """
         Get account data for a request
-        
+
         Returns
         -------
         data: ``dict``
@@ -373,14 +377,14 @@ class Authenticator(ABC):
             ``None``.
         """
         pass
-    
+
     async def get_current_account_data(
         self,
         account: dict = Depends(try_get_current_account_data),
     ) -> dict:
         """
         Get account data for a request
-        
+
         Raises
         ------
         HTTPException
@@ -395,7 +399,7 @@ class Authenticator(ABC):
             ``None``.
         """
         pass
-    
+
     async def login(
         self,
         response: Response,
@@ -411,7 +415,7 @@ class Authenticator(ABC):
         the person's browser that contains the JWT. It also
         returns a JSON payload that contains the JWT in a
         property named ``access_token``.
-        
+
         Returns
         -------
         token: ``Token``
@@ -450,7 +454,7 @@ class Authenticator(ABC):
             secure=secure,
         )
         return Token(access_token=encoded_jwt, token_type="Bearer")
-    
+
     async def logout(
         self,
         request: Request,
@@ -460,7 +464,7 @@ class Authenticator(ABC):
     ):
         """
         Logs a person out of their account.
-        
+
         Removes the cookie set in the person's browser.
         """
         if jwt and "jti" in jwt:

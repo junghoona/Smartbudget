@@ -1,10 +1,10 @@
 import os
 from fastapi import Depends
-from .authentication import Authenticator
+from auth.authentication import Authenticator
 from queries.accounts import (
     AccountQueries,
     AccountOut,
-    AccountIn,
+    AccountOutWithPassword
 )
 
 
@@ -15,9 +15,9 @@ class UserAuthenticator(Authenticator):
         accounts: AccountQueries,
     ):
         """
-        Uses AccountQueries to get the account based on username (which could be email)
+        Uses AccountQueries to get the account based on username/email
         """
-        return accounts.get_account(username)
+        return accounts.get(username)
 
     def get_account_getter(
         self,
@@ -28,18 +28,18 @@ class UserAuthenticator(Authenticator):
         """
         return accounts
 
-    def get_hashed_password(self, account: AccountIn):
+    def get_hashed_password(self, account: AccountOutWithPassword):
         """
         Returns the encrypted password value from the account object
         """
         return account.hashed_password
 
-    def get_account_data_for_cookie(self, account: AccountIn):
+    def get_account_data_for_cookie(self, account: AccountOut):
         """
         Return the username and the data for the cookie.
         Return TWO Values from this method.
         """
-        return account.username, AccountOut(**account.dict())
+        return account.email, AccountOut(**account.dict())
 
 
-authenticator = Authenticator(os.environ["SIGNING_KEY"])
+authenticator = UserAuthenticator(os.environ["SIGNING_KEY"])
