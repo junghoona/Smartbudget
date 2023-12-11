@@ -18,7 +18,7 @@ import {
     Select,
     VStack
 } from "@chakra-ui/react";
-import Formik from "formik";
+import { Formik } from "formik";
 
 
 const BudgetForm = () => {
@@ -64,8 +64,8 @@ const BudgetForm = () => {
 
     return (
         <Flex bg="gray.100" minWidth="max-content" align="center" justify="center" h="100vh">
-            <Box bg="white" p={6} rounded="md" w={64}>
-            <Heading size='md' align="center" justify="center">Create a new Budget</Heading>
+            <Box bg="white" maxWidth="450px" w="100%" p={6} rounded="md">
+            <Heading size='md' align="center" justify="center" h="5vh">Create a new Budget</Heading>
                 <Formik>
                     <form onSubmit={handleSubmit}>
                         <VStack spacing={4} align="flex-start">
@@ -88,6 +88,8 @@ const BudgetForm = () => {
                                         <NumberDecrementStepper />
                                     </NumberInputStepper>
                                 </NumberInput>
+                            </FormControl>
+                            <FormControl>
                                 <Slider
                                     flex='1'
                                     focusThumbOnChange={false}
