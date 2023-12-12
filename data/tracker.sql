@@ -24,8 +24,7 @@ CREATE TABLE cards (
     credit_limit INTEGER NOT NULL,
     minimum_payment INTEGER,
     card_number TEXT NOT NULL UNIQUE,
-    balance INTEGER NOT NULL,
-    budget_id INTEGER REFERENCES budgets("id") ON DELETE CASCADE
+    balance INTEGER NOT NULL
 );
 
 CREATE TABLE transactions (
