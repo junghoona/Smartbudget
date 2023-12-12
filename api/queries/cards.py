@@ -17,7 +17,6 @@ class CardIn(BaseModel):
     minimum_payment: float
     card_number: str
     balance: float
-    budget_id: int
 
 
 class CardOut(BaseModel):
@@ -27,7 +26,6 @@ class CardOut(BaseModel):
     minimum_payment: float
     card_number: str
     balance: float
-    budget_id: int
 
 
 class CardRepository:
@@ -43,7 +41,6 @@ class CardRepository:
                           , minimum_payment
                           , card_number
                           , balance
-                          , budget_id
                         )
                         VALUES
                             (%s, %s, %s, %s, %s)
@@ -55,7 +52,6 @@ class CardRepository:
                             card.minimum_payment,
                             card.card_number,
                             card.balance,
-                            card.budget_id
                         ]
                     )
                     id = result.fetchone()[0]
@@ -77,7 +73,6 @@ class CardRepository:
                              , minimum_payment
                              , card_number
                              , balance
-                             , budget_id
                         FROM cards
                         ORDER BY name ASC;
                         """
@@ -90,8 +85,7 @@ class CardRepository:
                             credit_limit=record[2],
                             minimum_payment=record[3],
                             card_number=record[4],
-                            balance=record[5],
-                            budget_id=record[6]
+                            balance=record[5]
                         )
                         result.append(card)
                     return result
@@ -112,7 +106,6 @@ class CardRepository:
                              , minimum_payment
                              , card_number
                              , balance
-                             , budget_id
                         FROM cards
                         WHERE id = %s
                         """,
@@ -135,7 +128,6 @@ class CardRepository:
                           , minimum_payment = %s
                           , card_number = %s
                           , balance = %s
-                          , budget_id = %s
                         WHERE id = %s
                         """,
                         [
@@ -144,7 +136,6 @@ class CardRepository:
                             card.minimum_payment,
                             card.card_number,
                             card.balance,
-                            card.budget_id,
                             card_id
                         ]
                     )
