@@ -13,18 +13,17 @@ class Error(BaseModel):
 
 
 class TransactionIn(BaseModel):
-    description: str
     date: Optional[date]
     price: float
+    description: str
     card_id: int
 
 
 class TransactionOut(BaseModel):
     id: int
-    description: str
     date: Optional[date]
     price: float
-    card_id: int
+    description: str
 
 
 class TransactionRepository:
@@ -34,20 +33,20 @@ class TransactionRepository:
                 result = db.execute(
                     """
                     INSERT INTO transactions
-                        (description, date, price, card_id)
+                        (date, price, description)
                     VALUES
-                        (%s, %s, %s, %s)
+                        (%s, %s, %s)
                     RETURNING id;
                     """,
                     [
-                        transaction.description,
                         transaction.date,
                         transaction.price,
-                        transaction.card_id
+                        transaction.description
                     ]
                 )
                 id = result.fetch_one()[0]
                 data = transaction.dict()
+                print('DATA: ', data)
                 return TransactionOut(id=id, **data)
 
     def get_all(self) -> Union[List[TransactionOut], Error]:
@@ -56,24 +55,20 @@ class TransactionRepository:
                 with conn.cursor() as db:
                     db.execute(
                         """
-                        SELECT description
-                             , date
+                        SELECT date
                              , price
-                             , cards.name AS card_name
+                             , description
                         FROM transactions
-                        LEFT JOIN cards
-                        ON (transactions.card_id = cards.id)
-                        ORDER BY cards.name ASC;
+                        ORDER BY date ASC;
                         """
                     )
                     result = []
                     for record in db:
                         transaction = TransactionOut(
                             id=record[0],
-                            description=record[1],
                             date=record[2],
                             price=record[3],
-                            card_name=record[4]
+                            description=record[4]
                         )
                         result.append(transaction)
                     return result
@@ -88,13 +83,10 @@ class TransactionRepository:
                     db.execute(
                         """
                         SELECT id
-                             , description
                              , date
                              , price
-                             , cards.name AS card_name
+                             , description
                         FROM transactions
-                        LEFT JOIN cards
-                        ON (transactions.card_id == cards.id)
                         WHERE id = %s
                         """,
                         [transaction_id]
@@ -114,17 +106,15 @@ class TransactionRepository:
                     db.execute(
                         """
                         UPDATE transactions
-                        SET description = %s
-                          , date = %s
+                        SET date = %s
                           , price = %s
-                          , card_id = %s
+                          , description = %s
                         WHERE id = %s
                         """,
                         [
-                            transaction.description,
                             transaction.date,
                             transaction.price,
-                            transaction.card_id,
+                            transaction.description,
                             transaction_id
                         ]
                     )
