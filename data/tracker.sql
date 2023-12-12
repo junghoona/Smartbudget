@@ -29,8 +29,7 @@ CREATE TABLE cards (
 
 CREATE TABLE transactions (
     id SERIAL NOT NULL UNIQUE,
-    description TEXT NOT NULL,
     date TIMESTAMP,
     price INTEGER NOT NULL,
-    card_id INTEGER NOT NULL REFERENCES cards("id") ON DELETE CASCADE
+    description TEXT NOT NULL
 );
