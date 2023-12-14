@@ -48,18 +48,18 @@ async def get_token(
 
 @router.post("/api/accounts", response_model=AccountToken | HttpError)
 async def create_account(
-    account: AccountIn,
+    account_info: AccountIn,
     request: Request,
     response: Response,
     accounts: AccountQueries = Depends(),
 ):
-    hashed_password = authenticator.hash_password(account.password)
+    hashed_password = authenticator.hash_password(account_info.password)
     try:
-        account = accounts.create(account, hashed_password)
+        account = accounts.create(account_info, hashed_password)
     except UniqueViolation:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Cannot create an account with those credentials",
+            detail="ERROR: Cannot create an account with duplicate credentials",
         )
     except Exception as e:
         print('ERROR: ', e)
@@ -67,7 +67,7 @@ async def create_account(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="ERROR: Cannot create this account"
         )
-    form = AccountForm(username=account.email, password=account.hashed_password)
-
+    form = AccountForm(username=account_info.email, password=account_info.password)
     token = await authenticator.login(response, request, form, accounts)
+
     return AccountToken(account=account, **token.dict())

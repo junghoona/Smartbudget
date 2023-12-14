@@ -6,7 +6,7 @@ hashing), Bearer with JWT tokens
 <https://fastapi.tiangolo.com/tutorial/security/oauth2-jwt/>`
 """
 
-# TODO: Fix 401 Unauthorized Error
+
 from abc import ABC, abstractmethod
 from calendar import timegm
 from datetime import datetime, timedelta

@@ -32,6 +32,41 @@ class AccountOutWithPassword(AccountOut):
 
 
 class AccountQueries:
+    def create(self, account: AccountIn, hashed_password: str) -> AccountOutWithPassword:
+        with pool.connection() as conn:
+            with conn.cursor() as db:
+                result = db.execute(
+                    """
+                    INSERT INTO accounts (
+                        first_name, last_name, avatar, email, hashed_password
+                    )
+                    VALUES (%s, %s, %s, %s, %s)
+                    RETURNING id
+                            , first_name
+                            , last_name
+                            , avatar
+                            , email
+                            , hashed_password;
+                    """,
+                    [
+                        account.first_name,
+                        account.last_name,
+                        account.avatar,
+                        account.email,
+                        hashed_password
+                    ]
+                )
+                record = result.fetchone()
+                print('RECORD: ', record)
+                return AccountOutWithPassword(
+                    id=record[0],
+                    first_name=record[1],
+                    last_name=record[2],
+                    avatar=record[3],
+                    email=record[4],
+                    hashed_password=record[5]
+                )
+
     def get(self, email: str) -> Union[AccountOutWithPassword, Error]:
         try:
             with pool.connection() as conn:
@@ -64,44 +99,3 @@ class AccountQueries:
             print('ERROR: ', e)
             return {"message": "Could not get the account. Email does not exist"}
 
-    def create(
-        self,
-        account: AccountIn,
-        hashed_password: str
-    ) -> Union[AccountOutWithPassword, Error]:
-        try:
-            with pool.connection() as conn:
-                with conn.cursor() as db:
-                    result = db.execute(
-                        """
-                        INSERT INTO accounts (
-                            first_name, last_name, avatar, email, hashed_password
-                        )
-                        VALUES (%s, %s, %s, %s, %s)
-                        RETURNING id
-                                , first_name
-                                , last_name
-                                , avatar
-                                , email
-                                , hashed_password;
-                        """,
-                        [
-                            account.first_name,
-                            account.last_name,
-                            account.avatar,
-                            account.email,
-                            hashed_password
-                        ]
-                    )
-                    record = result.fetchone()
-                    return AccountOutWithPassword(
-                        id=record[0],
-                        first_name=record[1],
-                        last_name=record[2],
-                        avatar=record[3],
-                        email=record[4],
-                        hashed_password=record[5]
-                    )
-        except Exception as e:
-            print('ERROR: ', e)
-            return {"message": "This attempt to create an account was unsuccessful"}
