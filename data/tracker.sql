@@ -4,7 +4,7 @@ DROP TABLE IF EXISTS transactions;
 DROP TABLE IF EXISTS budgets;
 
 CREATE TABLE accounts (
-    id SERIAL NOT NULL UNIQUE,
+    id SERIAL PRIMARY KEY NOT NULL UNIQUE,
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
     avatar TEXT NOT NULL,
@@ -13,13 +13,13 @@ CREATE TABLE accounts (
 );
 
 CREATE TABLE budgets (
-    id SERIAL NOT NULL UNIQUE,
+    id SERIAL PRIMARY KEY NOT NULL UNIQUE,
     category VARCHAR(50) NOT NULL,
     amount INTEGER NOT NULL
 );
 
 CREATE TABLE cards (
-    id SERIAL NOT NULL UNIQUE,
+    id SERIAL PRIMARY KEY NOT NULL UNIQUE,
     name TEXT NOT NULL UNIQUE,
     credit_limit INTEGER NOT NULL,
     minimum_payment INTEGER,
@@ -28,7 +28,7 @@ CREATE TABLE cards (
 );
 
 CREATE TABLE transactions (
-    id SERIAL NOT NULL UNIQUE,
+    id SERIAL PRIMARY KEY NOT NULL UNIQUE,
     date TIMESTAMP,
     price INTEGER NOT NULL,
     description TEXT NOT NULL
