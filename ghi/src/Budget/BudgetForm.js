@@ -29,12 +29,9 @@ const BudgetForm = () => {
         const value = event.target.value;
         setCategory(value);
     }
-    
-    const handleAmountChange = (amount) => setAmount(amount);
 
     const handleSubmit = async(event) => {
         event.preventDefault();
-
         const data = {
             category: category,
             amount: amount
@@ -51,10 +48,8 @@ const BudgetForm = () => {
                 },
             }
         );
-
         if (response.ok) {
             const newBudget = await response.json();
-
             setCategory('');
             setAmount(0.0);
         } else {
@@ -63,12 +58,12 @@ const BudgetForm = () => {
     };
 
     return (
-        <Flex bg="gray.100" minWidth="max-content" align="center" justify="center" h="100vh">
+        <Flex bg="purple.100" minWidth="max-content" align="center" justify="center" h="100vh">
             <Box bg="white" maxWidth="450px" w="100%" p={6} rounded="md">
-            <Heading size='md' align="center" justify="center" h="5vh">Create a new Budget</Heading>
+            <Heading as="h1" size='lg' align="center" justify="center" h="10vh">Create a new Budget</Heading>
                 <Formik>
-                    <form onSubmit={handleSubmit}>
-                        <VStack spacing={4} align="flex-start">
+                    <form onSubmit={(e) => handleSubmit(e)}>
+                        <VStack spacing={6} align="flex-start">
                             <FormControl id="create-budget-form">
                                 <FormLabel htmlFor="category">Category</FormLabel>
                                 <Select onChange={handleCategoryChange} placeholder="Select Category" size="md">
@@ -81,7 +76,7 @@ const BudgetForm = () => {
                             </FormControl>
                             <FormControl>
                                 <FormLabel htmlFor="amount">Amount</FormLabel>
-                                <NumberInput value={amount} onChange={handleAmountChange}>
+                                <NumberInput value={amount} onChange={(e)=> setAmount(e.target.value)}>
                                     <NumberInputField />
                                     <NumberInputStepper>
                                         <NumberIncrementStepper />
@@ -94,7 +89,7 @@ const BudgetForm = () => {
                                     flex='1'
                                     focusThumbOnChange={false}
                                     value={amount}
-                                    onChange={handleAmountChange}
+                                    onChange={(e)=> setAmount(e.target.value)}
                                 >
                                     <SliderTrack>
                                         <SliderFilledTrack />
