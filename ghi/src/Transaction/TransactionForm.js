@@ -13,27 +13,15 @@ import {
     Textarea
 } from "@chakra-ui/react";
 import { Formik } from "formik";
+import { useDispatch } from 'react-redux';
+import { addTransaction } from './TransactionSlice';
 
 
 const TransactionForm = () => {
     const [date, setDate] = useState('');
     const [price, setPrice] = useState(0);
     const [description, setDescription] = useState('');
-    
-    const handleDateChange = (event) => {
-        const value = event.target.value;
-        setDate(value);
-    }
-    
-    const handlePriceChange = (event) => {
-        const value = event.target.value;
-        setPrice(value);
-    }
-
-    const handleDescriptionChange = (event) => {
-        const value = event.target.value;
-        setDescription(value);
-    }
+    const dispatch = useDispatch();
 
     const handleSubmit = async(event) => {
         event.preventDefault();
@@ -44,30 +32,11 @@ const TransactionForm = () => {
             description: description,
         };
 
-        console.log('DATA: ', data);
-
-        const response = await fetch(
-            `${process.env.REACT_APP_API_HOST}/transactions`,
-            {
-                credentials: "include",
-                method: "POST",
-                body: JSON.stringify(data),
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            }
-        );
-
-        if (response.ok) {
-            const newTransaction = await response.json();
-            console.log('TRANSAC: ', newTransaction);
-
-            setDate('');
-            setPrice(0);
-            setDescription('');
-        } else {
-            console.error(response);
-        }
+        const action = addTransaction(data);
+        dispatch(action);
+        setDate('');
+        setPrice(0);
+        setDescription('');
     };
 
     return (
@@ -81,13 +50,13 @@ const TransactionForm = () => {
                         description: "",
                     }}
                 >
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={(e)=> handleSubmit(e)}>
                         <VStack spacing={6} align="flex-start">
                             <FormControl>
                                 <FormLabel htmlFor="date">Date: </FormLabel>
                                 <Input
                                     placeholder="Select Date and Time"
-                                    onChange={handleDateChange}
+                                    onChange={(e) => setDate(e.target.value)}
                                     value={date}
                                     size="md"
                                     type="datetime-local"
@@ -104,7 +73,7 @@ const TransactionForm = () => {
                                     />
                                     <Input
                                         placeholder="Enter amount"
-                                        onChange={handlePriceChange}
+                                        onChange={(e) => setPrice(e.target.value)}
                                         value={price}
                                     />
                                 </InputGroup>
@@ -113,13 +82,13 @@ const TransactionForm = () => {
                                 <FormLabel htmlFor="description">Description: </FormLabel>
                                 <Textarea
                                     placeholder="Enter Transaction Description Here"
-                                    onChange={handleDescriptionChange}
+                                    onChange={(e) => setDescription(e.target.value)}
                                     value={description}
                                     size="sm"
                                     resize="horizontal"
                                 />
                             </FormControl>
-                            <Button type="submit" colorScheme="red" width="full">
+                            <Button onClick={handleSubmit} type="submit" colorScheme="red" width="full">
                                 Create Transaction
                             </Button>
                         </VStack>
