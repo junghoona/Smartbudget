@@ -13,30 +13,40 @@ import {
     Textarea
 } from "@chakra-ui/react";
 import { Formik } from "formik";
-import { useDispatch } from 'react-redux';
-import { addTransaction } from './TransactionSlice';
-
 
 const TransactionForm = () => {
     const [date, setDate] = useState('');
     const [price, setPrice] = useState(0);
     const [description, setDescription] = useState('');
-    const dispatch = useDispatch();
 
     const handleSubmit = async(event) => {
         event.preventDefault();
-
         const data = {
             date: date,
             price: price,
-            description: description,
+            description: description
         };
 
-        const action = addTransaction(data);
-        dispatch(action);
-        setDate('');
-        setPrice(0);
-        setDescription('');
+        const response = await fetch(
+            `${process.env.REACT_APP_API_HOST}/transactions`,
+            {
+                credentials: "include",
+                method: "POST",
+                body: JSON.stringify(data),
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }
+        );
+
+        if(response.ok) {
+            const newTransaction = await response.json();
+            setDate('');
+            setPrice(0);
+            setDescription('');
+        } else {
+            console.error(response);
+        }
     };
 
     return (

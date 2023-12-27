@@ -1,7 +1,6 @@
 from psycopg_pool import ConnectionPool
-from typing import List, Optional, Union
+from typing import List, Union
 from pydantic import BaseModel
-from datetime import date
 import os
 
 
@@ -13,41 +12,43 @@ class Error(BaseModel):
 
 
 class TransactionIn(BaseModel):
-    date: Optional[date]
+    date: str
     price: float
     description: str
-    card_id: int
 
 
 class TransactionOut(BaseModel):
     id: int
-    date: Optional[date]
+    date: str
     price: float
     description: str
 
 
 class TransactionRepository:
     def create(self, transaction: TransactionIn):
-        with pool.connection() as conn:
-            with conn.cursor() as db:
-                result = db.execute(
-                    """
-                    INSERT INTO transactions
-                        (date, price, description)
-                    VALUES
-                        (%s, %s, %s)
-                    RETURNING id;
-                    """,
-                    [
-                        transaction.date,
-                        transaction.price,
-                        transaction.description
-                    ]
-                )
-                id = result.fetch_one()[0]
-                data = transaction.dict()
-                print('DATA: ', data)
-                return TransactionOut(id=id, **data)
+        try:
+            with pool.connection() as conn:
+                with conn.cursor() as db:
+                    result = db.execute(
+                        """
+                        INSERT INTO transactions
+                            (date, price, description)
+                        VALUES
+                            (%s, %s, %s)
+                        RETURNING id;
+                        """,
+                        [
+                            transaction.date,
+                            transaction.price,
+                            transaction.description
+                        ]
+                    )
+                    id = result.fetchone()[0]
+                    data = transaction.dict()
+                    return TransactionOut(id=id, **data)
+        except Exception as e:
+            print('ERROR: ', e)
+            return {"message": "Could not create transaction"}
 
     def get_all(self) -> Union[List[TransactionOut], Error]:
         try:
