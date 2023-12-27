@@ -24,11 +24,6 @@ import { Formik } from "formik";
 const BudgetForm = () => {
     const [category, setCategory] = useState('');
     const [amount, setAmount] = useState(0.0);
-    
-    const handleCategoryChange = (event) => {
-        const value = event.target.value;
-        setCategory(value);
-    }
 
     const handleSubmit = async(event) => {
         event.preventDefault();
@@ -50,10 +45,12 @@ const BudgetForm = () => {
         );
         if (response.ok) {
             const newBudget = await response.json();
+
             setCategory('');
-            setAmount(0.0);
+            setAmount(0);
         } else {
             console.error(response);
+            return event.status(500).json({ error: "Create Budget Failed" });
         }
     };
 
@@ -66,7 +63,7 @@ const BudgetForm = () => {
                         <VStack spacing={6} align="flex-start">
                             <FormControl id="create-budget-form">
                                 <FormLabel htmlFor="category">Category</FormLabel>
-                                <Select onChange={handleCategoryChange} placeholder="Select Category" size="md">
+                                <Select onChange={(e) => setCategory(e.target.value)} placeholder="Select Category" size="md">
                                     <option>Shopping</option>
                                     <option>Personal Care</option>
                                     <option>Auto & Transport</option>
@@ -76,7 +73,7 @@ const BudgetForm = () => {
                             </FormControl>
                             <FormControl>
                                 <FormLabel htmlFor="amount">Amount</FormLabel>
-                                <NumberInput value={amount} onChange={(e)=> setAmount(e.target.value)}>
+                                <NumberInput onChange={(e) => setAmount(e)} value={amount}>
                                     <NumberInputField />
                                     <NumberInputStepper>
                                         <NumberIncrementStepper />
@@ -89,7 +86,6 @@ const BudgetForm = () => {
                                     flex='1'
                                     focusThumbOnChange={false}
                                     value={amount}
-                                    onChange={(e)=> setAmount(e.target.value)}
                                 >
                                     <SliderTrack>
                                         <SliderFilledTrack />
