@@ -1,3 +1,5 @@
+import React from "react";
+
 export const TransactionCard = (props) => {
     return (
         <div className="col">
