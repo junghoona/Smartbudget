@@ -1,6 +1,7 @@
 from psycopg_pool import ConnectionPool
-from typing import List, Union
+from typing import List, Optional, Union
 from pydantic import BaseModel
+from datetime import datetime
 import os
 
 
@@ -12,14 +13,14 @@ class Error(BaseModel):
 
 
 class TransactionIn(BaseModel):
-    date: str
+    date: Optional[datetime]
     price: float
     description: str
 
 
 class TransactionOut(BaseModel):
     id: int
-    date: str
+    date: Optional[datetime]
     price: float
     description: str
 
@@ -56,7 +57,8 @@ class TransactionRepository:
                 with conn.cursor() as db:
                     db.execute(
                         """
-                        SELECT date
+                        SELECT id
+                             , date
                              , price
                              , description
                         FROM transactions
@@ -67,9 +69,9 @@ class TransactionRepository:
                     for record in db:
                         transaction = TransactionOut(
                             id=record[0],
-                            date=record[2],
-                            price=record[3],
-                            description=record[4]
+                            date=record[1],
+                            price=record[2],
+                            description=record[3]
                         )
                         result.append(transaction)
                     return result

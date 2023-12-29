@@ -29,7 +29,7 @@ CREATE TABLE cards (
 
 CREATE TABLE transactions (
     id SERIAL PRIMARY KEY NOT NULL UNIQUE,
-    date TIMESTAMP,
+    date TIMESTAMP NOT NULL,
     price INTEGER NOT NULL,
     description TEXT NOT NULL
 );
