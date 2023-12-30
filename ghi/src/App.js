@@ -7,14 +7,15 @@ import BudgetForm from "./Budget/BudgetForm.js";
 import BudgetList from "./Budget/BudgetList.js";
 import CardForm from "./Card/CardForm.js";
 
-import Navbar from "./Navbar.js";
+import NavBar from "./Navbar.js";
+import CardList from "./Card/CardList.js";
 
 
 function App() {
   return (
     <ChakraProvider>
       <BrowserRouter>
-        <Navbar />
+        <NavBar />
         <Routes>
           <Route exact path="/"></Route>
           <Route></Route>
@@ -25,6 +26,7 @@ function App() {
           </Route>
           <Route path="cards/">
             <Route path="create" element={<CardForm />} />
+            <Route index element={<CardList />} />
           </Route>
           <Route path="transactions/">
             <Route path="create" element={<TransactionForm />} />

@@ -1,76 +1,43 @@
+import React, { useState } from "react";
 import { NavLink, Link } from "react-router-dom";
+import './Navbar.css';  // Import CSS File for styling
 
+const NavBar = () => {
+    const [isMobile, setIsMobile] = useState(false);
 
-const Navbar = () => {
-    return (
-        <nav className="navbar navbar-expand-lg navbar-light bg-body-tertiary">
-            <div className="container-fluid">
-                <button 
-                    className="navbar-toggler"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#navbarScroll"
-                    aria-controls="navbarScroll"
-                    aria-expanded="false"
-                    aria-label="Toggle navigation"
-                >
-                    <span className="navbar-toggler-icon"></span>
-                </button>
-                <div className="collapse navbar-collapse" id="navbarScroll">
-                    <ul className="navbar-nav">
-                        <li className="nav-item">
-                            <NavLink
-                                className="nav-link"
-                                to={`${process.env.PUBLIC_URL}`}
-                            >
-                                Home
-                            </NavLink>
-                        </li>
-                        <li className="nav-item dropdown">
-                            <Link
-                                className="nav-link dropdown-toggle"
-                                to={`${process.env.PUBLIC_URL}/budgets`}
-                                role="button"
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false"
-                            >
-                                Budgets
-                            </Link>
-                            <ul className="dropdown-menu">
-                                <li>
-                                    <Link className="dropdown-item" to={`/create`}>
-                                        Create a Budget
-                                    </Link>
-                                </li>
-                                <li>
-                                    <Link className="dropdown-item" to={`${process.env.PUBLIC_URL}/budgets`}>
-                                        View All Budgets
-                                    </Link>
-                                </li>
-                            </ul>
-                        </li>
-                        <li className="nav-item dropdown">
-                            <a className="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Link
-                            </a>
-                            <ul className="dropdown-menu">
-                                <li><a className="dropdown-item">Action</a></li>
-                                <li><a className="dropdown-item" href="#">Another action</a></li>
-                                <li><a className="dropdown-item" href="#">Something else here</a></li>
-                            </ul>
-                        </li>
-                        <li className="nav-item">
-                            <a className="nav-link disabled" aria-disabled="true">Link</a>
-                        </li>
-                    </ul>
-                </div>
-                <form className="d-flex" role="search">
-                    <input className="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
-                    <button className="btn btn-outline-success" type="submit">Search</button>
-                </form>
+    const handleMenuClick = () => { setIsMobile(!isMobile); };
+
+    return(
+        <nav className="navbar">
+            <div className="logo">Your Logo</div>
+            <ul className={isMobile ? 'nav-menu active' : 'nav-menu'}>
+                <li className="nav-item">
+                    <Link to="/">Home</Link>
+                </li>
+                <li className="nav-item dropdown">
+                    <Link to="/cards">Cards</Link>
+                    <div className="dropdown-content">
+                        <Link to="/cards/create">Create a Card</Link>
+                    </div>
+                </li>
+                <li className="nav-item dropdown">
+                    <Link to="/budgets">Budgets</Link>
+                    <div className="dropdown-content">
+                        <Link to="/budgets/create">Create a Budget</Link>
+                    </div>
+                </li>
+                <li className="nav-item dropdown">
+                    <Link to="/transactions">Transactions</Link>
+                    <div className="dropdown-content">
+                        <Link to="/transactions/create">Create a Transaction</Link>
+                    </div>
+                </li>
+            </ul>
+            <div className="mobile-menu" onClick={handleMenuClick}>
+                <span className={isMobile ? 'burger active' : 'burger'}></span>
             </div>
         </nav>
-    );
+    )
 };
 
-export default Navbar;
+export default NavBar;
